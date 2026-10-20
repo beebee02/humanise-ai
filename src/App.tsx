@@ -23,19 +23,17 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>("editor");
 
-  // Analysis Metrics State
   const [aiScore, setAiScore] = useState<number | null>(null);
   const [plagScore, setPlagScore] = useState<number | null>(null);
   const [sentenceBreakdown, setSentenceBreakdown] = useState<
     { text: string; score: number; flag: string }[]
   >([]);
 
-  // Client-side text cleaning to strip dashes and AI artifact punctuation
   const sanitizeText = (str: string) => {
     return str
-      .replace(/[\u2014\u2013]/g, ", ") // Replace em-dash and en-dash with standard comma
-      .replace(/\s+-\s+/g, ", ")         // Replace space-hyphen-space
-      .replace(/"/g, "")                 // Strip enclosing quotes
+      .replace(/[\u2014\u2013]/g, ", ")
+      .replace(/\s+-\s+/g, ", ")
+      .replace(/"/g, "")
       .trim();
   };
 
@@ -84,8 +82,8 @@ STRICT LINGUISTIC RULES:
           });
           resText = response.choices[0]?.message?.content || "";
           if (resText) break;
-        } catch (err: unknown) {
-          console.warn(`Model ${modelName} failed, falling back...`, err);
+        } catch {
+          // Fall through to next model
         }
       }
 
@@ -95,8 +93,6 @@ STRICT LINGUISTIC RULES:
 
       const cleanedOutput = sanitizeText(resText);
       setOutputText(cleanedOutput);
-
-      // Run automatic inspection heuristics on output
       evaluateMetrics(cleanedOutput, inputText);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Rewrite generation failed.";
@@ -178,7 +174,6 @@ STRICT LINGUISTIC RULES:
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#060911", color: "#f3f4f6", fontFamily: "Inter, system-ui, sans-serif", display: "flex", flexDirection: "column" }}>
-      {/* Navigation Header */}
       <header style={{ borderBottom: "1px solid #1c2638", padding: "14px 28px", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#0a0f1d" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <div style={{ background: "#05966922", padding: "8px", borderRadius: "8px", border: "1px solid #05966944", display: "flex" }}>
@@ -193,7 +188,6 @@ STRICT LINGUISTIC RULES:
           </div>
         </div>
 
-        {/* View Switcher Tabs & Controls */}
         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
           <div style={{ display: "flex", background: "#111827", padding: "3px", borderRadius: "8px", border: "1px solid #1f293d" }}>
             <button
@@ -264,11 +258,9 @@ STRICT LINGUISTIC RULES:
         </div>
       </header>
 
-      {/* Main Container */}
       <main style={{ flex: 1, maxWidth: "1340px", width: "100%", margin: "0 auto", padding: "24px" }}>
         {activeTab === "editor" && (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
-            {/* Left: Input Textarea */}
             <section style={{ display: "flex", flexDirection: "column", background: "#0b101d", border: "1px solid #1a2336", borderRadius: "12px", overflow: "hidden" }}>
               <div style={{ padding: "12px 18px", borderBottom: "1px solid #1a2336", fontSize: "12px", color: "#94a3b8", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#0e1526" }}>
                 <span style={{ fontWeight: 600, color: "#cbd5e1" }}>Original Source Material</span>
@@ -320,7 +312,6 @@ STRICT LINGUISTIC RULES:
               </div>
             </section>
 
-            {/* Right: Output Pane */}
             <section style={{ display: "flex", flexDirection: "column", background: "#0b101d", border: "1px solid #1a2336", borderRadius: "12px", overflow: "hidden" }}>
               <div style={{ padding: "12px 18px", borderBottom: "1px solid #1a2336", fontSize: "12px", color: "#94a3b8", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#0e1526" }}>
                 <span style={{ fontWeight: 600, color: "#cbd5e1" }}>Synthesized Human Prose</span>
@@ -390,7 +381,6 @@ STRICT LINGUISTIC RULES:
           </div>
         )}
 
-        {/* AI Scanner Tab */}
         {activeTab === "ai-scanner" && (
           <div style={{ background: "#0b101d", border: "1px solid #1a2336", borderRadius: "12px", padding: "24px" }}>
             <h3 style={{ margin: "0 0 4px 0", fontSize: "18px", color: "#ffffff" }}>AI Detection Diagnostic</h3>
@@ -431,7 +421,6 @@ STRICT LINGUISTIC RULES:
           </div>
         )}
 
-        {/* Plagiarism Scanner Tab */}
         {activeTab === "plag-scanner" && (
           <div style={{ background: "#0b101d", border: "1px solid #1a2336", borderRadius: "12px", padding: "24px" }}>
             <h3 style={{ margin: "0 0 4px 0", fontSize: "18px", color: "#ffffff" }}>Plagiarism & N-Gram Overlap Scan</h3>
