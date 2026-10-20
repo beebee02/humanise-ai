@@ -11,17 +11,14 @@ import {
   FileCheck,
   Sparkles,
   SearchCheck,
-  AlertTriangle,
 } from "lucide-react";
 
-type HumanizeMode = "balanced" | "maximum";
 type ActiveTab = "editor" | "ai-scanner" | "plag-scanner";
 
 export default function App() {
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
   const [tone, setTone] = useState("academic");
-  const [mode, setMode] = useState<HumanizeMode>("maximum");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>("editor");
@@ -87,7 +84,7 @@ STRICT LINGUISTIC RULES:
           });
           resText = response.choices[0]?.message?.content || "";
           if (resText) break;
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.warn(`Model ${modelName} failed, falling back...`, err);
         }
       }
@@ -101,8 +98,9 @@ STRICT LINGUISTIC RULES:
 
       // Run automatic inspection heuristics on output
       evaluateMetrics(cleanedOutput, inputText);
-    } catch (err: any) {
-      alert(err.message || "Rewrite generation failed.");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Rewrite generation failed.";
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -129,9 +127,8 @@ STRICT LINGUISTIC RULES:
     let totalScoreSum = 0;
     const evaluated = rawSentences.map((sent) => {
       const lower = sent.toLowerCase();
-      let sentScore = Math.floor(Math.random() * 3) + 1; // Base 1-3% human level
+      let sentScore = Math.floor(Math.random() * 3) + 1;
 
-      // Check for AI markers
       for (const token of forbiddenTokens) {
         if (lower.includes(token)) sentScore += 18;
       }
@@ -145,8 +142,6 @@ STRICT LINGUISTIC RULES:
       };
     });
 
-    // Check direct n-gram plagiarism overlap against original text
-    const origWords = originalText.toLowerCase().split(/\s+/);
     const genWords = generatedText.toLowerCase().split(/\s+/);
     let matchedTriplets = 0;
 
@@ -399,7 +394,7 @@ STRICT LINGUISTIC RULES:
         {activeTab === "ai-scanner" && (
           <div style={{ background: "#0b101d", border: "1px solid #1a2336", borderRadius: "12px", padding: "24px" }}>
             <h3 style={{ margin: "0 0 4px 0", fontSize: "18px", color: "#ffffff" }}>AI Detection Diagnostic</h3>
-            <p style={{ color: "#64748b", fontSize: "12px", margin: "0 0 20px 0" }}>Evaluates Perplexity, Burstiness, Clause Symmetry, and Punctuation markers[cite: 1].</p>
+            <p style={{ color: "#64748b", fontSize: "12px", margin: "0 0 20px 0" }}>Evaluates Perplexity, Burstiness, Clause Symmetry, and Punctuation markers.</p>
 
             {outputText ? (
               <div>
