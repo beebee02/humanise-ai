@@ -76,7 +76,7 @@ Output ONLY the synthesized, rewritten text. No preambles, no disclaimers, no me
           { role: "system", content: systemPrompt },
           { role: "user", content: `Text to transform:\n\n${inputText}` },
         ],
-      model: "llama-3.1-8b-instant",
+      model: "openai/gpt-oss-20b",
         temperature: mode === "maximum" ? 0.98 : 0.85,
         top_p: 0.92,
       });
