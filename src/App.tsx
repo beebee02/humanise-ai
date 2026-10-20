@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Groq from "groq-sdk";
 import {
   Copy,
